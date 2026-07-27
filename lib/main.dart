@@ -1,10 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:window_manager/window_manager.dart';
 
 import 'theme/theme.dart';
 
 void main() {
+  setWindowSize();
   runApp(const Application());
+}
+
+void setWindowSize() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await windowManager.ensureInitialized();
+
+  WindowOptions windowOptions = WindowOptions(
+    size: Size(400, 500),
+    center: true,
+    title: "Flutter Clicker",
+  );
+  windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.show();
+    await windowManager.focus();
+  });
 }
 
 class Application extends StatelessWidget {
