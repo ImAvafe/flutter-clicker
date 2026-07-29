@@ -10,7 +10,9 @@ dependencies:
   flutter:
     sdk: flutter
   forui: ^0.24.3
+  hotkey_manager: ^0.2.3
   hugeicons: ^1.1.7
+  nutdart: ^0.0.1
   window_manager: ^0.5.2
 
 dev_dependencies:

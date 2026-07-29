@@ -1,18 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:forui/forui.dart';
+import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:window_manager/window_manager.dart';
-
+import 'clicker.dart';
 import 'theme/theme.dart';
 
-void main() {
-  setWindowSize();
+Clicker? clicker;
+
+final ValueNotifier<int> intervalNotifier = ValueNotifier<int>(100);
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  initializeWindow();
+  initializeHotkey();
+
   runApp(const Application());
 }
 
-void setWindowSize() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
+void initializeWindow() async {
   await windowManager.ensureInitialized();
 
   WindowOptions windowOptions = WindowOptions(
@@ -24,6 +31,28 @@ void setWindowSize() async {
     await windowManager.show();
     await windowManager.focus();
   });
+}
+
+void initializeHotkey() async {
+  await hotKeyManager.unregisterAll();
+
+  HotKey hotkey = HotKey(
+    key: PhysicalKeyboardKey.f6,
+    modifiers: [],
+    scope: HotKeyScope.system,
+  );
+  await hotKeyManager.register(
+    hotkey,
+    keyDownHandler: (hotkey) {
+      if (clicker != null) {
+        clicker?.kill();
+        clicker = null;
+      } else {
+        clicker = Clicker(intervalNotifier.value);
+        clicker?.spawn();
+      }
+    },
+  );
 }
 
 class Application extends StatelessWidget {
@@ -51,8 +80,6 @@ class Example extends StatefulWidget {
 }
 
 class _ExampleState extends State<Example> {
-  int _interval = 100;
-
   @override
   Widget build(BuildContext context) => Padding(
     padding: context.theme.style.pagePadding,
@@ -64,11 +91,9 @@ class _ExampleState extends State<Example> {
           label: Text("Interval (ms)"),
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           control: .managed(
-            initial: TextEditingValue(text: '100'),
+            initial: TextEditingValue(text: intervalNotifier.value.toString()),
             onChange: (value) {
-              setState(() {
-                _interval = int.tryParse(value.text) ?? 1;
-              });
+              intervalNotifier.value = int.tryParse(value.text) ?? 100;
             },
           ),
         ),
