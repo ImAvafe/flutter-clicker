@@ -9,6 +9,7 @@ import 'theme/theme.dart';
 Clicker? clicker;
 
 final ValueNotifier<int> intervalNotifier = ValueNotifier<int>(100);
+final ValueNotifier<bool> clickingNotifier = ValueNotifier<bool>(false);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,15 +45,21 @@ void initializeHotkey() async {
   await hotKeyManager.register(
     hotkey,
     keyDownHandler: (hotkey) {
-      if (clicker != null) {
-        clicker?.kill();
-        clicker = null;
-      } else {
-        clicker = Clicker(intervalNotifier.value);
-        clicker?.spawn();
-      }
+      toggleClicker();
     },
   );
+}
+
+void toggleClicker() {
+  if (clicker != null) {
+    clickingNotifier.value = false;
+    clicker?.kill();
+    clicker = null;
+  } else {
+    clickingNotifier.value = true;
+    clicker = Clicker(intervalNotifier.value);
+    clicker?.spawn();
+  }
 }
 
 class Application extends StatelessWidget {
@@ -80,6 +87,8 @@ class Example extends StatefulWidget {
 }
 
 class _ExampleState extends State<Example> {
+  bool _buttonDebounce = false;
+
   @override
   Widget build(BuildContext context) => Padding(
     padding: context.theme.style.pagePadding,
@@ -94,6 +103,30 @@ class _ExampleState extends State<Example> {
             initial: TextEditingValue(text: intervalNotifier.value.toString()),
             onChange: (value) {
               intervalNotifier.value = int.tryParse(value.text) ?? 100;
+            },
+          ),
+        ),
+        FButton(
+          onPress: !_buttonDebounce
+              ? () async {
+                  if (clicker == null) {
+                    setState(() {
+                      _buttonDebounce = true;
+                    });
+                    Future.delayed(Duration(seconds: 1)).then((_) {
+                      setState(() {
+                        _buttonDebounce = false;
+                      });
+                    });
+                  }
+
+                  toggleClicker();
+                }
+              : null,
+          child: ValueListenableBuilder<bool>(
+            valueListenable: clickingNotifier,
+            builder: (BuildContext context, bool clicking, Widget? child) {
+              return Text(!clickingNotifier.value ? "Start" : "Stop");
             },
           ),
         ),
