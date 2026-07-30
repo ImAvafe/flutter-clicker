@@ -109,16 +109,14 @@ class _ExampleState extends State<Example> {
         FButton(
           onPress: !_buttonDebounce
               ? () async {
-                  if (clicker == null) {
+                  setState(() {
+                    _buttonDebounce = true;
+                  });
+                  Future.delayed(Duration(seconds: 1)).then((_) {
                     setState(() {
-                      _buttonDebounce = true;
+                      _buttonDebounce = false;
                     });
-                    Future.delayed(Duration(seconds: 1)).then((_) {
-                      setState(() {
-                        _buttonDebounce = false;
-                      });
-                    });
-                  }
+                  });
 
                   toggleClicker();
                 }
