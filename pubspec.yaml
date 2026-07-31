@@ -23,3 +23,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/roboto/Roboto.ttf
+        - asset: assets/fonts/roboto/Roboto-Italic.ttf
+          style: italic

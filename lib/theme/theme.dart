@@ -24,7 +24,7 @@ part 'icons.dart';
 /// * https://forui.dev/docs/guides/customizing-widget-styles for customizing individual widget styles.
 FThemeData get lightTheme {
   // Change this to false to use the desktop variant of this theme.
-  const touch = true;
+  const touch = false;
 
   final colors = lightColors;
 
@@ -45,7 +45,7 @@ FThemeData get lightTheme {
 
 FThemeData get darkTheme {
   // Change this to false to use the desktop variant of this theme.
-  const touch = true;
+  const touch = false;
 
   final colors = darkColors;
 

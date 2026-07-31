@@ -13,7 +13,7 @@ FTypography _typography({required FColors colors, required bool touch}) =>
 FTypeface _display({
   required FColors colors,
   required bool touch,
-  String fontFamily = FTypeface.defaultFontFamily,
+  String fontFamily = 'Roboto',
   List<String>? fontFamilyFallback,
 }) {
   assert(
@@ -262,7 +262,7 @@ FTypeface _display({
 FTypeface _body({
   required FColors colors,
   required bool touch,
-  String fontFamily = FTypeface.defaultFontFamily,
+  String fontFamily = 'Roboto',
   List<String>? fontFamilyFallback,
 }) {
   assert(
