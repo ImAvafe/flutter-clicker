@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:forui/forui.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
+import 'package:nutdart/nutdart.dart' as nutdart;
 import 'package:window_manager/window_manager.dart';
 import 'clicker.dart';
 import 'theme/theme.dart';
@@ -10,6 +11,8 @@ Clicker? clicker;
 
 final ValueNotifier<int> intervalNotifier = ValueNotifier<int>(100);
 final ValueNotifier<bool> clickingNotifier = ValueNotifier<bool>(false);
+final ValueNotifier<nutdart.MouseButton> mouseButtonNotifier =
+    ValueNotifier<nutdart.MouseButton>(nutdart.MouseButton.left);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,7 +60,7 @@ void toggleClicker() {
     clicker = null;
   } else {
     clickingNotifier.value = true;
-    clicker = Clicker(intervalNotifier.value);
+    clicker = Clicker(intervalNotifier.value, mouseButtonNotifier.value);
     clicker?.spawn();
   }
 }
@@ -97,12 +100,27 @@ class _ExampleState extends State<Example> {
       spacing: 10,
       children: [
         FTextField(
-          label: Text("Interval (ms)"),
+          label: const Text("Interval (ms)"),
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           control: .managed(
             initial: TextEditingValue(text: intervalNotifier.value.toString()),
             onChange: (value) {
               intervalNotifier.value = int.tryParse(value.text) ?? 100;
+            },
+          ),
+        ),
+        FSelect<String>(
+          label: const Text("Mouse button"),
+          items: {
+            for (var mouseButton in nutdart.MouseButton.values)
+              '${mouseButton.name[0].toUpperCase()}${mouseButton.name.substring(1)}':
+                  mouseButton.name,
+          },
+          control: .managed(
+            onChange: (value) {
+              mouseButtonNotifier.value = nutdart.MouseButton.values.byName(
+                value ?? "left",
+              );
             },
           ),
         ),

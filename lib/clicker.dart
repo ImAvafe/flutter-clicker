@@ -1,13 +1,14 @@
-import 'package:nutdart/nutdart.dart' as nutdart;
+import 'package:nutdart/nutdart.dart';
 
 class Clicker {
   int interval;
+  MouseButton mouseButton;
 
   bool _running = true;
 
   void spawn() async {
     while (_running) {
-      nutdart.Mouse.click();
+      Mouse.click(mouseButton);
       await Future.delayed(Duration(milliseconds: interval));
     }
   }
@@ -16,5 +17,5 @@ class Clicker {
     _running = false;
   }
 
-  Clicker(this.interval);
+  Clicker(this.interval, this.mouseButton);
 }
