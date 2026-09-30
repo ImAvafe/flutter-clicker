@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_clicker/widgets/hotkey_select.dart';
 import 'package:forui/forui.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:nutdart/nutdart.dart' as nutdart;
@@ -7,23 +8,31 @@ import 'package:window_manager/window_manager.dart';
 import 'clicker.dart';
 import 'theme/theme.dart';
 
+const defaultHotkey = PhysicalKeyboardKey.f6;
+
 Clicker? clicker;
 
 final ValueNotifier<int> intervalNotifier = ValueNotifier<int>(100);
 final ValueNotifier<bool> clickingNotifier = ValueNotifier<bool>(false);
 final ValueNotifier<nutdart.MouseButton> mouseButtonNotifier =
     ValueNotifier<nutdart.MouseButton>(nutdart.MouseButton.left);
+final ValueNotifier<PhysicalKeyboardKey> hotkeyNotifier =
+    ValueNotifier<PhysicalKeyboardKey>(defaultHotkey);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  initializeWindow();
-  initializeHotkey();
+  await initializeWindow();
+  await registerHotkey();
+
+  hotkeyNotifier.addListener(() {
+    registerHotkey();
+  });
 
   runApp(const Application());
 }
 
-void initializeWindow() async {
+Future<void> initializeWindow() async {
   await windowManager.ensureInitialized();
 
   WindowOptions windowOptions = WindowOptions(
@@ -37,17 +46,20 @@ void initializeWindow() async {
   });
 }
 
-void initializeHotkey() async {
+Future<void> registerHotkey() async {
   await hotKeyManager.unregisterAll();
 
+  print(hotkeyNotifier.value.debugName);
+
   HotKey hotkey = HotKey(
-    key: PhysicalKeyboardKey.f6,
+    key: hotkeyNotifier.value,
     modifiers: [],
     scope: HotKeyScope.system,
   );
   await hotKeyManager.register(
     hotkey,
     keyDownHandler: (hotkey) {
+      print('bruh');
       toggleClicker();
     },
   );
@@ -123,6 +135,12 @@ class _ExampleState extends State<Example> {
               );
             },
           ),
+        ),
+        HotkeySelect(
+          initialHotkey: defaultHotkey,
+          onChange: (hotkey) {
+            hotkeyNotifier.value = hotkey;
+          },
         ),
         FButton(
           onPress: !_buttonDebounce
